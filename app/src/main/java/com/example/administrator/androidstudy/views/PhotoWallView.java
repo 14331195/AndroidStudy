@@ -40,6 +40,7 @@ public class PhotoWallView extends View {
     private int mDownX;
     private int mDownY;
     private long mTimeStamp;
+    private long mLastAnimTime;
     private Rect[] mSrcRects = new Rect[5];
     private Rect[] mDesRects = new Rect[5];
     private Bitmap[] mDesBitmaps = new Bitmap[5];
@@ -147,7 +148,7 @@ public class PhotoWallView extends View {
                 mLayoutParams.x = x - mLayoutParams.width / 2;
                 mLayoutParams.y = y - mLayoutParams.height / 2;
                 mWindowManager.updateViewLayout(mMoveImageView, mLayoutParams);
-                if (!mIsAnimRunning) {
+                if (!mIsAnimRunning && (System.currentTimeMillis() - mLastAnimTime) > 500) {
                     checkIntersectRect();
                     adjustAllRects();
                 }
@@ -246,7 +247,7 @@ public class PhotoWallView extends View {
                 int currPos = (int) animation.getAnimatedValue();
                 if (flag) {
                     float currTop = animation.getAnimatedFraction() * diff_top;
-//                    currTop = currTop * (startPos < endPos ? -1 : 1);
+                    currTop = currTop * (top < top1 ? 1 : -1);
                     mDesRects[mIntersectRectPos].left = (int)currPos;
                     mDesRects[mIntersectRectPos].top = (int)currTop + top;
                     mDesRects[selectPos].left = endPos + (startPos - currPos);
@@ -278,6 +279,7 @@ public class PhotoWallView extends View {
 //                mDesRects[selectPos] = tmp;
                 mSelectedPos = mIntersectRectPos;
                 mIntersectRectPos = -1;
+                mLastAnimTime = System.currentTimeMillis();
             }
             @Override
             public void onAnimationCancel(Animator animation) {
