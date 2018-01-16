@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="@color/black">
 
-    <com.example.administrator.androidstudy.views.ClipImageView
+    <com.example.administrator.androidstudy.views.ClipCircleImageView
         android:id="@+id/clip_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -21,9 +21,10 @@
         <Button
             android:id="@+id/cancel"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="45dp"
             android:text="Cancel"
-            android:textColor="@color/white"/>
+            android:textColor="@color/white"
+            android:background="@drawable/btn_cancel_gray"/>
         <Button
             android:id="@+id/select"
             android:layout_width="wrap_content"
@@ -35,11 +36,12 @@
         <Button
             android:id="@+id/save"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="45dp"
             android:text="Save"
             android:textColor="@color/white"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"/>
+            android:layout_alignParentRight="true"
+            android:background="@drawable/btn_save_blue"/>
     </RelativeLayout>
 
     <ImageView
@@ -47,5 +49,5 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:src="@mipmap/ic_launcher"
-        android:visibility="visible"/>
+        android:visibility="gone"/>
 </FrameLayout>

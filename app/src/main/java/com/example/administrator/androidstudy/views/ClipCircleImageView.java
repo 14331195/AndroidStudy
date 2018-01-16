@@ -5,35 +5,37 @@ import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapShader;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.PointF;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
+import android.graphics.Shader;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.animation.DecelerateInterpolator;
-import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 
 /**
  * Created by Administrator on 2018/1/10.
  */
 
-public class ClipImageView extends ImageView {
+public class ClipCircleImageView extends ImageView {
     private Bitmap mBitmap;
     private Matrix mMatrix;
-    private Rect mOutRectTop;
-    private Rect mOutRectBottom;
-    private Rect mOutRectLeft;
-    private Rect mOutRectRight;
+    private Rect mOutRect;
     private Rect mClipRect;
-    private Paint mOutRectPaint;
-    private Paint mClipRectPaint;
+    private Paint mOutRectPaint;            //外部区域填充画笔
+    private Paint mClipRectPaint;           //裁剪区域内容填充画笔
+    private Paint mClipRectStrokePaint;     //裁剪区域边界画笔
 
     private int radius = 800;
-    private float MAX_SCALE = 50;
     private float MIN_SCALE;
     private float MIN_EDGE_X;
     private float MAX_EDGE_X;
@@ -46,11 +48,11 @@ public class ClipImageView extends ImageView {
     private PointF mLastScalePoint1 = new PointF();
     private PointF mLastScalePoint2 = new PointF();
 
-    public ClipImageView(Context context) {
+    public ClipCircleImageView(Context context) {
         super(context);
     }
 
-    public ClipImageView(Context context, AttributeSet attributeSet) {
+    public ClipCircleImageView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
     }
 
@@ -67,27 +69,20 @@ public class ClipImageView extends ImageView {
         }
         Rect drawRect = new Rect();
         getDrawingRect(drawRect);
-        mOutRectTop = new Rect(drawRect.left, drawRect.top, drawRect.right, drawRect.bottom/2-radius/2);
-        mOutRectBottom = new Rect(drawRect.left, drawRect.bottom/2+radius/2, drawRect.right, drawRect.bottom);
-        mOutRectLeft = new Rect(drawRect.left, mOutRectTop.bottom, drawRect.right/2-radius/2, mOutRectBottom.top);
-        mOutRectRight = new Rect(drawRect.right/2+radius/2, mOutRectTop.bottom, drawRect.right, mOutRectBottom.top);
+        mOutRect = new Rect(drawRect.left, drawRect.top, drawRect.right, drawRect.bottom);
         mOutRectPaint = new Paint();
-        mOutRectPaint.setARGB(125, 50, 50, 50);
+        mOutRectPaint.setARGB(125, 0, 0, 0);
         mClipRectPaint = new Paint();
-        mClipRectPaint.setARGB(10, 255, 255, 255);
+        mClipRectPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+        mClipRectStrokePaint = new Paint();
+        mClipRectStrokePaint.setStrokeWidth(3);
+        mClipRectStrokePaint.setStyle(Paint.Style.STROKE);
+        mClipRectStrokePaint.setColor(Color.WHITE);
         int bmWidth = mBitmap.getWidth();
         int bmHeight = mBitmap.getHeight();
-        int left = bmWidth / 2 - radius / 2;
-        int top = bmHeight / 2 - radius / 2;
-//        mClipRect = new Rect(left, top, left + radius, top + radius);
-        mClipRect = new Rect(mOutRectLeft.right, mOutRectTop.bottom, mOutRectRight.left, mOutRectBottom.top);
+//        mClipRect = new Rect(mOutRectLeft.right, mOutRectTop.bottom, mOutRectRight.left, mOutRectBottom.top);
 
         MIN_SCALE = radius / (float) (Math.min(bmHeight, bmWidth));
-//        if (scale >= 1.0f) {    //图像小于裁剪框的情况，取最短的边计算scale，
-//            MIN_SCALE = scale;
-//        } else {                //图像大于裁剪框的情况，取长边计算scale，使得整个图像可以缩放在裁剪框内
-////            MIN_SCALE = radius / (float) (Math.max(bmHeight, bmWidth));
-//        }
         mMatrix = new Matrix();
         mMatrix.setScale(MIN_SCALE, MIN_SCALE);
         float cx = drawRect.width() / 2 - radius / 2;
@@ -249,15 +244,24 @@ public class ClipImageView extends ImageView {
     }
 
     public Bitmap clipImage() {
-        Bitmap result = Bitmap.createBitmap(mClipRect.width(), mClipRect.height(), Bitmap.Config.ARGB_8888);
+        Bitmap result = Bitmap.createBitmap(radius, radius, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(result);
         setDrawingCacheEnabled(false);
         setWillNotCacheDrawing(false);
         setDrawingCacheEnabled(true);
         Bitmap drawingCache = getDrawingCache();
-        Rect fitRect = new Rect(0, 0, result.getWidth(), result.getHeight());
         if (drawingCache != null) {
-            canvas.drawBitmap(drawingCache, mClipRect, fitRect, null);
+            Rect desRect = new Rect(0, 0, result.getWidth(), result.getHeight());
+            Rect srcRect = new Rect((int)MIN_EDGE_X , (int)MIN_EDGE_Y, (int)MIN_EDGE_X + radius, (int)MIN_EDGE_Y + radius);
+            canvas.drawBitmap(drawingCache, srcRect, desRect, null);
+
+            Bitmap tmp = result;
+            result = Bitmap.createBitmap(radius, radius, Bitmap.Config.ARGB_8888);
+            canvas = new Canvas(result);
+            Path path = new Path();
+            path.addCircle(radius/2 , radius/2, radius / 2 - 3, Path.Direction.CW);
+            canvas.clipPath(path);
+            canvas.drawBitmap(tmp, 0, 0, new Paint());
         } else {
             result = null;
         }
@@ -271,11 +275,12 @@ public class ClipImageView extends ImageView {
         }
         try {
             canvas.drawBitmap(mBitmap, mMatrix, null);
-            canvas.drawRect(mOutRectTop, mOutRectPaint);
-            canvas.drawRect(mOutRectBottom, mOutRectPaint);
-            canvas.drawRect(mOutRectLeft, mOutRectPaint);
-            canvas.drawRect(mOutRectRight, mOutRectPaint);
-            canvas.drawRect(mClipRect, mClipRectPaint);
+            int layerId = canvas.saveLayer(0, 0, canvas.getWidth(), canvas.getHeight(), null, Canvas.ALL_SAVE_FLAG);
+            canvas.drawRect(mOutRect, mOutRectPaint);
+            canvas.drawCircle(mOutRect.width()/2, mOutRect.height() / 2, radius / 2, mClipRectPaint);
+            canvas.restoreToCount(layerId);
+            canvas.drawCircle(mOutRect.width()/2, mOutRect.height() / 2, radius / 2, mClipRectStrokePaint);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
