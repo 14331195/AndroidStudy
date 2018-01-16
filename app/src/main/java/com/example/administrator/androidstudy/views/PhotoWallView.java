@@ -9,6 +9,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -43,6 +45,7 @@ public class PhotoWallView extends View {
     private Bitmap[] mDesBitmaps = new Bitmap[5];
     private Bitmap mInitBitmap;
     private Bitmap mBitmap;
+    private Paint mPaint;
 
     private WindowManager.LayoutParams mLayoutParams;
     private WindowManager mWindowManager;
@@ -65,15 +68,17 @@ public class PhotoWallView extends View {
         if (mInitBitmap == null) {
             return;
         }
-        mBitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.ss0);
-
         for (int i = 0; i < mDesBitmaps.length; ++i) {
             mDesBitmaps[i] = mInitBitmap;
             mSrcRects[i] = new Rect(0, 0, mInitBitmap.getWidth(), mInitBitmap.getHeight());
         }
-
+        mPaint = new Paint();
+        mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.XOR));
+        mPaint.setColor(Color.parseColor("#606060"));
+        mPaint.setStyle(Paint.Style.FILL);
         int width = (mWidth - mSpacing * 8) / 4;
         int left = mWidth / 2;
+//        mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ss0)
 //        Log.v("AAAA:", ""+ getPaddingLeft() + "," + getPaddingBottom());
 
         mDesRects[0] = new Rect(mSpacing, mSpacing, mSpacing + left, mHeight - mSpacing);
@@ -212,6 +217,7 @@ public class PhotoWallView extends View {
         if (mIntersectRectPos == -1 || mIsAnimRunning) {
             return;
         }
+        mIsAnimRunning = true;
         final int startPos, endPos;
         final boolean flag;
         if (mDesRects[mIntersectRectPos].left != mDesRects[mSelectedPos].left) {
@@ -240,6 +246,7 @@ public class PhotoWallView extends View {
                 int currPos = (int) animation.getAnimatedValue();
                 if (flag) {
                     float currTop = animation.getAnimatedFraction() * diff_top;
+//                    currTop = currTop * (startPos < endPos ? -1 : 1);
                     mDesRects[mIntersectRectPos].left = (int)currPos;
                     mDesRects[mIntersectRectPos].top = (int)currTop + top;
                     mDesRects[selectPos].left = endPos + (startPos - currPos);
@@ -266,6 +273,9 @@ public class PhotoWallView extends View {
             @Override
             public void onAnimationEnd(Animator animation) {
                 mIsAnimRunning = false;
+//                Rect tmp = mDesRects[mIntersectRectPos];
+//                mDesRects[mIntersectRectPos] = mDesRects[selectPos];
+//                mDesRects[selectPos] = tmp;
                 mSelectedPos = mIntersectRectPos;
                 mIntersectRectPos = -1;
             }
@@ -299,7 +309,8 @@ public class PhotoWallView extends View {
             canvas.drawBitmap(mDesBitmaps[3], mSrcRects[3], mDesRects[3], null);
             canvas.drawBitmap(mDesBitmaps[4], mSrcRects[4], mDesRects[4], null);
             if (mSelectedPos != -1) {
-                canvas.drawBitmap(mBitmap, mSrcRects[mSelectedPos], mDesRects[mSelectedPos], null);
+                canvas.drawRect(mDesRects[mSelectedPos], mPaint);
+//                canvas.drawBitmap(mBitmap, mSrcRects[mSelectedPos], mDesRects[mSelectedPos], mPaint);
             }
         } catch (Exception e) {
             e.printStackTrace();
