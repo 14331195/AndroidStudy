@@ -92,7 +92,6 @@ public class ClipCircleImageView extends ImageView {
         MAX_EDGE_X = MIN_EDGE_X + radius;
         MIN_EDGE_Y = cy;
         MAX_EDGE_Y = MIN_EDGE_Y + radius;
-        Log.v("AAAA:", "scale:" + MIN_SCALE);
     }
 
     private final int ACTION_SCALE = 1;

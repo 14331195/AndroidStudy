@@ -42,6 +42,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         save = findViewById(R.id.save);
         mImageView = findViewById(R.id.clip_image);
         mClipImageView = findViewById(R.id.result);
+        mImageView.post(new Runnable() {
+            @Override
+            public void run() {
+                mImageView.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ss0));
+            }
+        });
         cancel.setOnClickListener(this);
         select.setOnClickListener(this);
         save.setOnClickListener(this);

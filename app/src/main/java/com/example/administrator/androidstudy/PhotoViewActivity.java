@@ -24,14 +24,25 @@ import java.io.InputStream;
 
 public class PhotoViewActivity extends AppCompatActivity implements View.OnClickListener{
     private PhotoWallView mPhotoWallView;
+    private int mClickItem = -1;
 
     @Override
     public void onCreate(@Nullable Bundle onSaveInstanceState) {
         super.onCreate(onSaveInstanceState);
         setContentView(R.layout.layout_photos_view);
         mPhotoWallView = findViewById(R.id.photo_view);
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.init);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ss);
         mPhotoWallView.setInitBitmap(bitmap);
+
+        mPhotoWallView.setItemClickListener(new PhotoWallView.OnItemClickListener() {
+            @Override
+            public void onItemClick(int pos) {
+                mClickItem = pos;
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setType("image/*");
+                startActivityForResult(intent, 0);
+            }
+        });
     }
 
     @Override
@@ -58,6 +69,7 @@ public class PhotoViewActivity extends AppCompatActivity implements View.OnClick
             try {
                 InputStream is = cv.openInputStream(uri);
                 Bitmap bitmap = BitmapFactory.decodeStream(is);
+                mPhotoWallView.setBitmap(mClickItem, bitmap);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
