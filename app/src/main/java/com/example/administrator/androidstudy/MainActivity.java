@@ -1,5 +1,6 @@
 package com.example.administrator.androidstudy;
 
+import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
@@ -10,13 +11,19 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 
 import com.example.administrator.androidstudy.views.ClipCircleImageView;
 import com.example.administrator.androidstudy.views.ClipImageView;
+import com.example.administrator.androidstudy.views.MyProgressView;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -31,6 +38,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button select;
     private ClipCircleImageView mImageView;
     private ImageView mClipImageView;
+    private int progress = 10;
+    private MyProgressView myProgressView;
 
     @Override
     public void onCreate(@Nullable Bundle onSaveInstanceState) {
@@ -42,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         save = findViewById(R.id.save);
         mImageView = findViewById(R.id.clip_image);
         mClipImageView = findViewById(R.id.result);
+        myProgressView = findViewById(R.id.my);
         mImageView.post(new Runnable() {
             @Override
             public void run() {
@@ -61,6 +71,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
+    private void ss() {
+        Dialog dialog = new Dialog(this, R.style.dialog);
+//        View view = LayoutInflater.from(this).inflate(R.layout.img,null);
+        dialog.setContentView(R.layout.img);
+
+
+        WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
+////        WindowManager.LayoutParams attrs = dialog.getWindow().getAttributes();
+////        params.flags |= WindowManager.LayoutParams.FLAG_FULLSCREEN;
+////        dialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+////        dialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+////        dialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+////        DisplayMetrics displayMetrics = new DisplayMetrics();
+////        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+//        params.x = -20;
+        params.width = WindowManager.LayoutParams.MATCH_PARENT;
+        params.height = WindowManager.LayoutParams.MATCH_PARENT;
+        dialog.getWindow().setAttributes(params);
+        dialog.show();
+
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -72,9 +104,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mClipImageView.setVisibility(View.GONE);
                 break;
             case R.id.select:
-                Intent intent = new Intent(Intent.ACTION_PICK);
-                intent.setType("image/*");
-                startActivityForResult(intent, 0);
+                myProgressView.setProgress(++progress);
+
+//                Intent intent = new Intent(Intent.ACTION_PICK);
+//                intent.setType("image/*");
+//                startActivityForResult(intent, 0);
                 break;
         }
     }

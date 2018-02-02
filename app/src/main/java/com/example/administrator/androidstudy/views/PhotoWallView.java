@@ -39,6 +39,7 @@ public class PhotoWallView extends View {
     private int mIntersectRectPos = -1;
     private int mDownX;
     private int mDownY;
+    private int mSmallRectWidth;
     private long mTimeStamp;
     private long mLastAnimTime;
     private Rect[] mSrcRects = new Rect[5];
@@ -78,8 +79,9 @@ public class PhotoWallView extends View {
         mPaint.setColor(Color.parseColor("#606060"));
         mPaint.setStyle(Paint.Style.FILL);
         int width = (mWidth - mSpacing * 8) / 4;
+        mSmallRectWidth = width;
         int left = mWidth / 2;
-//        mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ss0)
+        mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ss0);
 //        Log.v("AAAA:", ""+ getPaddingLeft() + "," + getPaddingBottom());
 
         mDesRects[0] = new Rect(mSpacing, mSpacing, mSpacing + left, mHeight - mSpacing);
@@ -292,7 +294,14 @@ public class PhotoWallView extends View {
     }
 
     public void setBitmap(int pos, Bitmap bitmap) {
-        mDesBitmaps[pos] = bitmap;
+//        float scale = Math.min(bitmap.getWidth(), bitmap.getHeight()) / (float)mSmallRectWidth;
+//        Matrix matrix = new Matrix();
+//        matrix.postScale(scale, scale);
+//        Bitmap bmp = Bitmap.createBitmap(mSmallRectWidth, mSmallRectWidth, Bitmap.Config.ARGB_8888);
+//        Canvas canvas = new Canvas(bmp);
+//        canvas.drawBitmap(bitmap, matrix, null);
+        Bitmap bmp = Bitmap.createScaledBitmap(bitmap, mSmallRectWidth, mSmallRectWidth, false);
+        mDesBitmaps[pos] = bmp;
         mSrcRects[pos].right = bitmap.getWidth();
         mSrcRects[pos].bottom = bitmap.getHeight();
         mSelectedPos = -1;
@@ -311,8 +320,8 @@ public class PhotoWallView extends View {
             canvas.drawBitmap(mDesBitmaps[3], mSrcRects[3], mDesRects[3], null);
             canvas.drawBitmap(mDesBitmaps[4], mSrcRects[4], mDesRects[4], null);
             if (mSelectedPos != -1) {
-                canvas.drawRect(mDesRects[mSelectedPos], mPaint);
-//                canvas.drawBitmap(mBitmap, mSrcRects[mSelectedPos], mDesRects[mSelectedPos], mPaint);
+//                canvas.drawRect(mDesRects[mSelectedPos], mPaint);
+                canvas.drawBitmap(mBitmap, mSrcRects[mSelectedPos], mDesRects[mSelectedPos], null);
             }
         } catch (Exception e) {
             e.printStackTrace();
