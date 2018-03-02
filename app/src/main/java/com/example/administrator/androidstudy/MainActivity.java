@@ -10,6 +10,7 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -64,20 +65,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         select.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                Intent intent = new Intent(MainActivity.this, PhotoViewActivity.class);
+                Intent intent = new Intent(MainActivity.this, AIDLActivity.class);
                 startActivity(intent);
                 return true;
             }
         });
+        test();
     }
 
-    private void ss() {
-        Dialog dialog = new Dialog(this, R.style.dialog);
-//        View view = LayoutInflater.from(this).inflate(R.layout.img,null);
+    private void test() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.dialog);
+//        builder.setView(R.layout.img);
+
+        View view = LayoutInflater.from(this).inflate(R.layout.img, null);
+//        view.setLayoutParams(new WindowManager.LayoutParams(WindowManager.LayoutParams.MATCH_PARENT, 1000));
+
+//        builder.show();
+        AlertDialog dialog = builder.create();
+//        Dialog dialog = new Dialog(this, R.style.dialog);
         dialog.setContentView(R.layout.img);
+        dialog.show();
 
-
-        WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
+//        WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
 ////        WindowManager.LayoutParams attrs = dialog.getWindow().getAttributes();
 ////        params.flags |= WindowManager.LayoutParams.FLAG_FULLSCREEN;
 ////        dialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
@@ -86,10 +95,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 ////        DisplayMetrics displayMetrics = new DisplayMetrics();
 ////        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 //        params.x = -20;
-        params.width = WindowManager.LayoutParams.MATCH_PARENT;
-        params.height = WindowManager.LayoutParams.MATCH_PARENT;
-        dialog.getWindow().setAttributes(params);
-        dialog.show();
+//        params.width = WindowManager.LayoutParams.MATCH_PARENT;
+//        params.height = WindowManager.LayoutParams.MATCH_PARENT;
+//        dialog.getWindow().setAttributes(params);
+//        dialog.setContentView(R.layout.img);
+
 
     }
 

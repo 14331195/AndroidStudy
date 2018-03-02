@@ -1,125 +1,251 @@
 package com.example.administrator.androidstudy.views;
 
-import android.animation.Animator;
-import android.animation.ValueAnimator;
-import android.content.Context;
-import android.util.AttributeSet;
-import android.util.Log;
-import android.view.MotionEvent;
-import android.view.ViewGroup;
-import android.view.animation.DecelerateInterpolator;
-import android.widget.LinearLayout;
-import android.widget.OverScroller;
-import android.widget.Scroller;
 
-/**
- * Created by Administrator on 2018/2/2.
- */
 
-public class ScrollableLayout extends LinearLayout {
-    private Scroller mScroller;
-    private float mLastX;
-    private float mLastY;
-    private long currTime;
-    private static float THRESHOLD = 1.0f;
-    private boolean mIsAnimRunning = false;
-    private boolean mIsOnLayout = false;
+        import android.content.Context;
+        import android.graphics.PointF;
+        import android.util.AttributeSet;
+        import android.util.Log;
+        import android.view.MotionEvent;
+        import android.widget.LinearLayout;
+        import android.widget.OverScroller;
 
-    public ScrollableLayout(Context context) {
-        super(context);
+public class ScrollableLayout extends LinearLayout
+{
+    public static final int  OVERSCROLL_DISTANCE = 500;
+    protected static final int  INVALID_POINTER_ID  = -1;
+
+    private OverScroller        fScroller;
+    // The ‘active pointer’ is the one currently moving our object.
+    private int                 fTranslatePointerId = INVALID_POINTER_ID;
+    private PointF              fTranslateLastTouch = new PointF( );
+
+    private float firstX;
+    private float firstY;
+
+    public ScrollableLayout(Context context, AttributeSet attrs)
+    {
+        super( context, attrs );
+        this.initView( context, attrs );
     }
 
-    public ScrollableLayout(Context context, AttributeSet attributeSet) {
-        super(context, attributeSet);
-        mScroller = new Scroller(context);
+    public ScrollableLayout(Context context, AttributeSet attrs, int defStyle)
+    {
+        super( context, attrs, defStyle );
+        this.initView( context, attrs );
+    }
+
+    protected void initView(Context context, AttributeSet attrs)
+    {
+        fScroller = new OverScroller( this.getContext( ) );
+
+        this.setOverScrollMode( OVER_SCROLL_ALWAYS );
     }
 
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        float y = event.getY();
-        switch (event.getActionMasked()) {
-            case MotionEvent.ACTION_DOWN:
-                mLastY = event.getY();
-                return true;
-            case MotionEvent.ACTION_POINTER_DOWN:
-                mLastY = y;
-                Log.v("AAAA:", "pointer");
-                break;
+    public boolean onInterceptTouchEvent(MotionEvent ev)
+    {
+        int action = ev.getAction();
+        switch ( action & MotionEvent.ACTION_MASK )
+        {
             case MotionEvent.ACTION_MOVE:
+            {
+                final float translateX = ev.getX( );
+                final float translateY = ev.getY( );
+
+                //距离小于5认为是单击事件，传递给子控件
+                if((firstX - translateX < -5) || (firstX - translateX > 5) ||
+                        (firstY - translateY < -5) || (firstY - translateY > 5))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            case MotionEvent.ACTION_DOWN:
+            {
+
+                if ( !fScroller.isFinished( ) )
+                    fScroller.abortAnimation( );
 
 
-//                if ((y - mLastY) < THRESHOLD) {
-//                    mLastY = y;
-//                    return false;
-//                }
-//                MarginLayoutParams params = (MarginLayoutParams)getLayoutParams();
-//                params.topMargin += (y - mLastY);
-//                setLayoutParams(params);
-//                layout(getLeft(), (int)(getTop() + y - mLastY), getRight(), (int)(getBottom() + y - mLastY));
-//                smoothScroll(mLastY - y);
-                smoothScroll((int)-(y - mLastY));
-                mLastY = y;
-                break;
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
-                smoothScrollToTop();
-                break;
+                final float x = ev.getX( );
+                final float y = ev.getY( );
+                firstX = x;
+                firstY = y;
+                fTranslateLastTouch.set( x, y );
+
+                //记录第一个手指按下时的ID
+                fTranslatePointerId = ev.getPointerId( 0 );
+
+                return false;
+            }
+            default:
+            {
+                return false;
+            }
         }
-        return super.onTouchEvent(event);
-    }
-
-    private void smoothScrollToTop() {
-        mScroller.startScroll(0, getScrollY(), 0, 0, 500);
-        invalidate();
-        Log.v("AAAA:", "aaaa");
-//        if (mIsAnimRunning) {
-//            return;
-//        }
-//        ValueAnimator animator = ValueAnimator.ofInt(getTop(), 0);
-//        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-//            @Override
-//            public void onAnimationUpdate(ValueAnimator animation) {
-//                int curr = (int)animation.getAnimatedValue();
-//                layout(getLeft(), curr, getRight(), getBottom()-(getTop() - curr));
-//            }
-//        });
-//        animator.setInterpolator(new DecelerateInterpolator());
-//        animator.addListener(new Animator.AnimatorListener() {
-//            @Override
-//            public void onAnimationStart(Animator animation) {
-//                mIsAnimRunning = true;
-//            }
-//
-//            @Override
-//            public void onAnimationEnd(Animator animation) {
-//                mIsAnimRunning = false;
-//            }
-//
-//            @Override
-//            public void onAnimationCancel(Animator animation) {
-//                mIsAnimRunning = false;
-//            }
-//
-//            @Override
-//            public void onAnimationRepeat(Animator animation) {
-//
-//            }
-//        });
-//        animator.setDuration(300);
-//        animator.start();
-    }
-
-    private void smoothScroll(int deltaY) {
-        mScroller.startScroll(0, getScrollY(), 0, deltaY, 0);
-        invalidate();
     }
 
     @Override
-    public void computeScroll() {
-        if (mScroller.computeScrollOffset()) {
-            scrollTo(mScroller.getCurrX(), mScroller.getCurrY());
-            postInvalidate();
+    public boolean onTouchEvent(MotionEvent event)
+    {
+        final int action = event.getAction( );
+        switch ( action & MotionEvent.ACTION_MASK )
+        {
+            case MotionEvent.ACTION_DOWN:
+            {
+                if ( !fScroller.isFinished( ) )
+                    fScroller.abortAnimation( );
+
+                final float x = event.getX( );
+                final float y = event.getY( );
+
+                fTranslateLastTouch.set( x, y );
+
+                //记录第一个手指按下时的ID
+                fTranslatePointerId = event.getPointerId( 0 );
+                break;
+            }
+
+            case MotionEvent.ACTION_MOVE:
+            {
+                /**
+                 * 取第一个触摸点的位置
+                 */
+                final int pointerIndexTranslate = event.findPointerIndex( fTranslatePointerId );
+                if ( pointerIndexTranslate >= 0 )
+                {
+                    float translateX = event.getX( pointerIndexTranslate );
+                    float translateY = event.getY( pointerIndexTranslate );
+
+                    //Log.i("com.zte.allowance", "fTranslatePointerId = " + fTranslatePointerId);
+                    /**
+                     * deltaX 将要在X轴方向上移动距离
+                     * scrollX 滚动deltaX之前，x轴方向上的偏移
+                     * scrollRangeX 在X轴方向上最多能滚动的距离
+                     * maxOverScrollX 在x轴方向上，滚动到边界时，还能超出的滚动距离
+                     */
+                    //Log.i("com.zte.allowance", "delta y = " + (fTranslateLastTouch.y - translateY));
+                    this.overScrollBy(
+                            (int) (fTranslateLastTouch.x - translateX),
+                            (int) (fTranslateLastTouch.y - translateY),
+                            this.getScrollX( ),
+                            this.getScrollY( ),
+                            0,
+                            0,
+                            0,
+                            OVERSCROLL_DISTANCE,
+                            true );
+
+                    fTranslateLastTouch.set( translateX, translateY );
+
+                    this.invalidate( );
+                }
+
+                break;
+            }
+
+            case MotionEvent.ACTION_UP:
+            {
+                /**
+                 * startX 回滚开始时x轴上的偏移
+                 * minX 和maxX 当前位置startX在minX和manX之 间时就不再回滚
+                 *
+                 * 此配置表示X和Y上的偏移都必须复位到0
+                 */
+                if (fScroller.springBack( this.getScrollX( ), this.getScrollY( ), 0, 0, 0, 0))
+                    this.invalidate( );
+
+                fTranslatePointerId = INVALID_POINTER_ID;
+                break;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public void computeScroll()
+    {
+        if ( fScroller != null && fScroller.computeScrollOffset( ) )
+        {
+            int oldX = this.getScrollX( );
+            int oldY = this.getScrollY( );
+
+            /**
+             * 根据动画开始及持续时间计算出当前时间下，view的X.Y方向上的偏移量
+             * 参见OverScroller computeScrollOffset 的SCROLL_MODE
+             */
+            int x = fScroller.getCurrX( );
+            int y = fScroller.getCurrY( );
+
+            if ( oldX != x || oldY != y )
+            {
+                //Log.i("com.zte.allowance", oldY + "  " + y);
+                this.overScrollBy(
+                        x - oldX,
+                        (y - oldY),
+                        oldX,
+                        oldY,
+                        0,
+                        0,
+                        0,
+                        OVERSCROLL_DISTANCE,
+                        false );
+            }
+
+            this.postInvalidate( );
         }
     }
+
+    @Override
+    protected void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY)
+    {
+        // Treat animating scrolls differently; see #computeScroll() for why.
+        if ( !fScroller.isFinished( ) )
+        {
+            super.scrollTo( scrollX, scrollY );
+
+            if ( clampedX || clampedY )
+            {
+                fScroller.springBack( this.getScrollX( ), this.getScrollY( ), 0, 0, 0, 0);
+            }
+        }
+        else
+        {
+            super.scrollTo( scrollX, scrollY );
+        }
+        awakenScrollBars( );
+    }
+
+    @Override
+    protected int computeHorizontalScrollExtent()
+    {
+        return this.getWidth( );
+    }
+
+    @Override
+    protected int computeHorizontalScrollOffset()
+    {
+        return this.getScrollX( );
+    }
+
+    @Override
+    protected int computeVerticalScrollExtent()
+    {
+        return this.getHeight( );
+    }
+
+
+    @Override
+    protected int computeVerticalScrollOffset()
+    {
+        return this.getScrollY( );
+    }
+
+
 }

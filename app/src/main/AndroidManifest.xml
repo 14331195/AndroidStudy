@@ -16,6 +16,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".PhotoViewActivity"/>
+        <activity android:name=".AIDLActivity"/>
+
+        <service android:name=".service.AIDLService"
+            />
 
     </application>
 
