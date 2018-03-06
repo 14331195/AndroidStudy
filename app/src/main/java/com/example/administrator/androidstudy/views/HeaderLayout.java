@@ -3,8 +3,11 @@ package com.example.administrator.androidstudy.views;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import com.example.administrator.androidstudy.R;
@@ -18,8 +21,9 @@ public class HeaderLayout extends FrameLayout {
     private RecyclerView mRecyclerView;
     private HeaderPointView mHeaderPointView;
 
-    private int mPointHeight = Utils.dip2pix(60);
-    private int mHeaderHeight = Utils.dip2pix(120);
+    private int mPointHeightDip = 160;
+    private int mPointHeight = mPointHeightDip; //Utils.dip2pix(mPointHeightDip);
+    private int mHeaderHeight = 320;//Utils.dip2pix(320);
 
     public HeaderLayout(Context context){
         this(context, null, 0);
@@ -39,10 +43,28 @@ public class HeaderLayout extends FrameLayout {
         addView(view);
         mRecyclerView = findViewById(R.id.recycler_view);
         mHeaderPointView = findViewById(R.id.header_point);
+
+        post(new Runnable() {
+            @Override
+            public void run() {
+                mHeaderHeight = getMeasuredHeight();
+                mPointHeight = mHeaderHeight * 2 / 3;
+                mRecyclerView.setTranslationY(-mPointHeight);
+                ViewGroup.LayoutParams layoutParams = mHeaderPointView.getLayoutParams();
+                layoutParams.height = mPointHeight;
+                mHeaderPointView.setLayoutParams(layoutParams);
+            }
+        });
+    }
+
+    public boolean canScroll(int scrollY) {
+        return scrollY < mHeaderHeight;
     }
 
     public void onPullDown(int offset) {
+//        offset = Utils.dip2pix(offset);
         float percentage = Math.abs(offset) / (float)mPointHeight;
+//        Log.v("AAAA:", "precentage:"+percentage + ",offset:"+offset);
         if (percentage <= 1.0f) {
             mHeaderPointView.setVisibility(VISIBLE);
             mHeaderPointView.setPercentage(percentage);
@@ -55,6 +77,12 @@ public class HeaderLayout extends FrameLayout {
             mHeaderPointView.setAlpha(Math.max(1 - percentage, 0));
             mRecyclerView.setTranslationY(-mPointHeight * (1 - percentage));
         }
+    }
+
+    public void reset() {
+        mHeaderPointView.setPercentage(1.0f);
+        mHeaderPointView.setTranslationY(0);
+        mHeaderPointView.setAlpha(1);
     }
 
     public int getPointHeight() {

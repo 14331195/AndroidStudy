@@ -76,4 +76,21 @@
             android:visibility="gone"/>
     </com.example.administrator.androidstudy.views.ScrollableLayout>
 
+    <com.example.administrator.androidstudy.views.ScrollLinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/white">
+        <com.example.administrator.androidstudy.views.HeaderLayout
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:background="@color/gray"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="dsadsad"
+            android:textColor="@color/black"
+            android:layout_gravity="center"/>
+    </com.example.administrator.androidstudy.views.ScrollLinearLayout>
+
 </FrameLayout>
