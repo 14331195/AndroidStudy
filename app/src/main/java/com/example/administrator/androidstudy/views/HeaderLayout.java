@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -66,7 +67,6 @@ public class HeaderLayout extends FrameLayout {
         float percentage = Math.abs(offset) / (float)mPointHeight;
 //        Log.v("AAAA:", "precentage:"+percentage + ",offset:"+offset);
         if (percentage <= 1.0f) {
-            mHeaderPointView.setVisibility(VISIBLE);
             mHeaderPointView.setPercentage(percentage);
             mRecyclerView.setTranslationY(-mPointHeight);
         } else {
@@ -80,9 +80,24 @@ public class HeaderLayout extends FrameLayout {
     }
 
     public void reset() {
-        mHeaderPointView.setPercentage(1.0f);
+//        mHeaderPointView.setPercentage(1.0f);
         mHeaderPointView.setTranslationY(0);
         mHeaderPointView.setAlpha(1);
+        mHeaderPointView.setVisibility(VISIBLE);
+    }
+
+    public void hidePointView() {
+        mHeaderPointView.setVisibility(GONE);
+    }
+
+    public void showPointView() {
+        mHeaderPointView.setVisibility(VISIBLE);
+    }
+
+    public boolean contains(int x, int y) {
+        int[] loc = new int[2];
+        getLocationOnScreen(loc);
+        return (x >= loc[0] && x <= loc[0]+getWidth() && y >= loc[1] && y <= loc[1]+getHeight());
     }
 
     public int getPointHeight() {
@@ -91,5 +106,12 @@ public class HeaderLayout extends FrameLayout {
 
     public int getHeaderHeight() {
         return mHeaderHeight;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        switch (event.getAction()) {
+            case
+        }
     }
 }

@@ -4,16 +4,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center|bottom"
-        android:background="@color/colorAccent"/>
     <com.example.administrator.androidstudy.views.HeaderPointView
         android:id="@+id/header_point"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_gravity="center|bottom"
         android:background="@color/colorPrimary"/>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center|bottom"
+        android:background="@color/colorAccent"/>
+
 </FrameLayout>

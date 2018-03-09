@@ -2,6 +2,7 @@ package com.example.administrator.androidstudy.views;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.EventLog;
 import android.util.Log;
@@ -19,8 +20,11 @@ import android.widget.Toast;
 
 public class ScrollLinearLayout extends LinearLayout {
     private HeaderLayout mHeaderLayout;
+    private RecyclerView mRecyclerView;
     private int mTouchSlop;
     private float mLastY;
+    private float mScrollFactor = 0.6f;
+    private boolean mScrollUp = false;
     private SmoothScrollRunnable mSmoothScrollRunnable;
 
     public ScrollLinearLayout(Context context) {
@@ -41,6 +45,7 @@ public class ScrollLinearLayout extends LinearLayout {
         int childCount = getChildCount();
         if (childCount == 2) {
             mHeaderLayout = (HeaderLayout) getChildAt(0);
+            mRecyclerView = (RecyclerView)getChildAt(1);
         }
         init(getContext());
     }
@@ -58,23 +63,40 @@ public class ScrollLinearLayout extends LinearLayout {
         });
     }
 
-//    @Override
-//    public boolean onInterceptTouchEvent(MotionEvent event) {
-//        int action = event.getAction();
-//        switch (action) {
-//            case MotionEvent.ACTION_DOWN:
-//                mLastY = event.getY();
-//                break;
-//            case MotionEvent.ACTION_MOVE:
-//                float diff = Math.abs(event.getY() - mLastY);
-//
-//                break;
-//            case MotionEvent.ACTION_CANCEL:
-//            case MotionEvent.ACTION_UP:
-//                break;
-//        }
-//        return false;
-//    }
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent event) {
+        int action = event.getAction();
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                mLastY = event.getY();
+                if (mHeaderLayout.contains((int)event.getRawX(), (int)event.getRawY())) {
+                    Log.v("AAA:", "yes");
+                } else {
+                    Log.v("AAA:", "x:"+(int)event.getX()+"y:"+(int)event.getY()+"|l:"+mHeaderLayout.getLeft()+",r:"+mHeaderLayout.getRight()+",t:"+mHeaderLayout.getTop()+",b:"+mHeaderLayout.getBottom());
+                }
+                break;
+            case MotionEvent.ACTION_MOVE:
+                if (mHeaderLayout.contains((int)event.getRawX(), (int)event.getRawY())) {
+                    return false;
+                }
+                float diff = (event.getY() - mLastY);
+                //HeaderLayout还未显示出来
+                if (diff > 0 && getScrollY() == 0 && !mRecyclerView.canScrollVertically(-1)) {
+//                    boolean s = onTouchEvent(event);
+//                    Log.v("AAAA:", "return");
+//                    return s;
+                    return onTouchEvent(event);
+                } else if (Math.abs(getScrollY()) == mHeaderLayout.getHeaderHeight()) {
+                    return true;
+                }
+
+                break;
+            case MotionEvent.ACTION_CANCEL:
+            case MotionEvent.ACTION_UP:
+                break;
+        }
+        return false;
+    }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -83,30 +105,57 @@ public class ScrollLinearLayout extends LinearLayout {
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 mLastY = event.getY();
-                handled = true;
                 break;
             case MotionEvent.ACTION_MOVE:
+
+                handled = true;
                 float diff = (event.getY() - mLastY);
+                if (diff < 0) {
+                    mScrollUp = true;
+                } else {
+                    mScrollUp = false;
+                }
+//                if (mScrollUp && (getScrollY() == 0 || Math.abs(getScrollY()) < Math.abs(diff))) {
+////                    handled = false;
+//                    Log.v("AAAA:", "111");
+//                    scrollTo(0, 0);
+//                    return mRecyclerView.onTouchEvent(event);
+//                }
                 mLastY = event.getY();
 
+                //下拉时还没滑到headerlayout的顶部 或者 上滑时
                 if ((diff > 0 && mHeaderLayout.canScroll(Math.abs(getScrollY()))) || (diff < 0 && getScrollY() < 0)) {
                     if (diff < 0 ) {
+                        diff = Math.abs(getScrollY()) >= Math.abs(diff) ? diff : 0;
                         scrollBy(0, -(int) diff);
                     } else {
+                        //判断当前是否会滑到mHeaderLayout的顶部
                         int tmp = (mHeaderLayout.getHeaderHeight() - Math.abs(getScrollY()));
                         diff = diff > tmp ? tmp : diff;
+                        //判断当前是否要显示顶部列表
+                        diff = Math.abs(getScrollY()) >= mHeaderLayout.getPointHeight() ? diff : diff * mScrollFactor;
                         scrollBy(0, -(int) diff);
                     }
                     mHeaderLayout.onPullDown(Math.abs(getScrollY()));
                 }
+
                 break;
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP:
+                if (getScrollY() == 0) {
+                    return handled;
+                }
                 if (Math.abs(getScrollY()) >= mHeaderLayout.getPointHeight()) {
-
+                    smoothScroll(getScrollY(), -mHeaderLayout.getHeaderHeight(), 200);
+                    mHeaderLayout.hidePointView();
+                    Log.v("AAAA:", "ss");
                 } else if (mHeaderLayout.canScroll(Math.abs(getScrollY()))) {
                     smoothScroll(getScrollY(), 0, 200);
                     mHeaderLayout.reset();
+                    if (mScrollUp) {
+                        mHeaderLayout.hidePointView();
+                    }
+                    Log.v("AAAA:", "aa");
                 }
                 break;
         }
@@ -119,7 +168,7 @@ public class ScrollLinearLayout extends LinearLayout {
         } else {
             mSmoothScrollRunnable = new SmoothScrollRunnable(fromY, toY, duration);
         }
-        mSmoothScrollRunnable.reset();
+        mSmoothScrollRunnable.set(fromY, toY, duration);
         post(mSmoothScrollRunnable);
     }
 
@@ -144,21 +193,28 @@ public class ScrollLinearLayout extends LinearLayout {
             } else {
                 float time = (System.currentTimeMillis() - mStartTime) / (float)mDuration;
                 time = Math.min(time, 1.0f);
-                int deltaY = (int)(mInterpolator.getInterpolation(time) * (mFromY - mToY));
-                mCurrY = mFromY - deltaY;
-                Log.v("AAAA:", "time: "+ time+","+mInterpolator.getInterpolation(time) + ", deltaY:"+deltaY+",mCurrY:"+mCurrY);
+                int deltaY = (int)(mInterpolator.getInterpolation(time) * Math.abs(mFromY - mToY));
+                mCurrY = mFromY + (mToY >= 0 ? deltaY : deltaY * -1);
+//                Log.v("AAAA:", "t:"+(System.currentTimeMillis() - mStartTime) + ",mStartTime: "+mStartTime+",time:"+time + ",mFromY: "+ mFromY+",mToY:"+mToY + ", deltaY:"+deltaY+",mCurrY:"+mCurrY);
                 scrollTo(0, mCurrY);
-                mHeaderLayout.onPullDown(Math.abs(getScrollY()));
+                mHeaderLayout.onPullDown(Math.abs(mCurrY));
             }
             if (mCurrY != mToY) {
                 postDelayed(this, 16);
+            } else {
+                if (mToY == 0) {
+                    mHeaderLayout.showPointView();
+                }
             }
         }
 
         public void stop() {
             removeCallbacks(this);
         }
-        public void reset() {
+        public void set(int fromY, int toY, int duration) {
+            mFromY = fromY;
+            mToY = toY;
+            mDuration = duration;
             mCurrY = -1;
             mStartTime = 0;
         }

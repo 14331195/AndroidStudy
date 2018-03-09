@@ -12,6 +12,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -22,12 +25,15 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import com.example.administrator.androidstudy.adapter.ItemAdapter;
 import com.example.administrator.androidstudy.views.ClipCircleImageView;
 import com.example.administrator.androidstudy.views.ClipImageView;
 import com.example.administrator.androidstudy.views.MyProgressView;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Administrator on 2018/1/10.
@@ -70,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return true;
             }
         });
+        setupRecyclerView();
 //        test();
     }
 
@@ -101,6 +108,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        dialog.setContentView(R.layout.img);
 
 
+    }
+
+    private void setupRecyclerView() {
+        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        List<ItemAdapter.Item> list = new ArrayList<>();
+        for (int i = 0; i < 20; ++i) {
+            list.add(new ItemAdapter.Item(i));
+        }
+        ItemAdapter adapter = new ItemAdapter(this, list);
+        LinearLayoutManager manager = new LinearLayoutManager(this);
+        manager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        recyclerView.setLayoutManager(manager);
+        recyclerView.setAdapter(adapter);
+        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.HORIZONTAL));
+
+        RecyclerView listView = findViewById(R.id.list_view);
+        manager = new LinearLayoutManager(this);
+        manager.setOrientation(LinearLayoutManager.VERTICAL);
+        listView.setLayoutManager(manager);
+        listView.setAdapter(adapter);
+        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
     }
 
     @Override
