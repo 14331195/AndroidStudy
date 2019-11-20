@@ -7,6 +7,7 @@ import android.util.AttributeSet;
 import android.util.EventLog;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewTreeObserver;
 import android.view.animation.DecelerateInterpolator;
@@ -102,17 +103,21 @@ public class ScrollLinearLayout extends LinearLayout {
     public boolean onTouchEvent(MotionEvent event) {
         int action = event.getAction();
         boolean handled = false;
-        switch (action) {
+
+        switch (action & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
                 mLastY = event.getY();
                 break;
+            case MotionEvent.ACTION_POINTER_DOWN:
+                Log.v("AAA:", "1");
+                mLastY = event.getY();
+                break;
             case MotionEvent.ACTION_MOVE:
-
                 handled = true;
                 float diff = (event.getY() - mLastY);
-                if (diff < 0) {
+                if (diff < 0) {     //向上滑动
                     mScrollUp = true;
-                } else {
+                } else {            //向下滑动
                     mScrollUp = false;
                 }
 //                if (mScrollUp && (getScrollY() == 0 || Math.abs(getScrollY()) < Math.abs(diff))) {
@@ -123,8 +128,9 @@ public class ScrollLinearLayout extends LinearLayout {
 //                }
                 mLastY = event.getY();
 
-                //下拉时还没滑到headerlayout的顶部 或者 上滑时
-                if ((diff > 0 && mHeaderLayout.canScroll(Math.abs(getScrollY()))) || (diff < 0 && getScrollY() < 0)) {
+                //下拉时还没滑到headerlayout的顶部 或者 上滑时头部布局还未完全消失
+                if ((diff > 0 && mHeaderLayout.canScroll(Math.abs(getScrollY())))
+                        || (diff < 0 && getScrollY() < 0 && !mHeaderLayout.isShowing())) {
                     if (diff < 0 ) {
                         diff = Math.abs(getScrollY()) >= Math.abs(diff) ? diff : 0;
                         scrollBy(0, -(int) diff);
@@ -137,6 +143,10 @@ public class ScrollLinearLayout extends LinearLayout {
                         scrollBy(0, -(int) diff);
                     }
                     mHeaderLayout.onPullDown(Math.abs(getScrollY()));
+                } else if(diff > 0 ) {
+                    mHeaderLayout.postScaleY(diff * mScrollFactor);
+                } else if (diff < 0) {
+                    mHeaderLayout.postScaleY(diff * mScrollFactor);
                 }
 
                 break;
@@ -147,7 +157,6 @@ public class ScrollLinearLayout extends LinearLayout {
                 }
                 if (Math.abs(getScrollY()) >= mHeaderLayout.getPointHeight()) {
                     smoothScroll(getScrollY(), -mHeaderLayout.getHeaderHeight(), 200);
-                    mHeaderLayout.hidePointView();
                     Log.v("AAAA:", "ss");
                 } else if (mHeaderLayout.canScroll(Math.abs(getScrollY()))) {
                     smoothScroll(getScrollY(), 0, 200);
@@ -157,6 +166,7 @@ public class ScrollLinearLayout extends LinearLayout {
                     }
                     Log.v("AAAA:", "aa");
                 }
+                mHeaderLayout.onCancel();
                 break;
         }
         return handled;
@@ -204,6 +214,8 @@ public class ScrollLinearLayout extends LinearLayout {
             } else {
                 if (mToY == 0) {
                     mHeaderLayout.showPointView();
+                } else {
+                    mHeaderLayout.hidePointView();
                 }
             }
         }

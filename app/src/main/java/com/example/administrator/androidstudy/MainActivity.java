@@ -17,6 +17,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Choreographer;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,7 +25,9 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
+import com.example.administrator.androidstudy.adapter.ChannelAdapter;
 import com.example.administrator.androidstudy.adapter.ItemAdapter;
 import com.example.administrator.androidstudy.views.ClipCircleImageView;
 import com.example.administrator.androidstudy.views.ClipImageView;
@@ -39,13 +42,14 @@ import java.util.List;
  * Created by Administrator on 2018/1/10.
  */
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends BaseActivity implements View.OnClickListener, Choreographer.FrameCallback{
     private Button cancel;
     private Button save;
     private Button select;
     private ClipCircleImageView mImageView;
     private ImageView mClipImageView;
     private int progress = 10;
+    private int frameNum = 0;
     private MyProgressView myProgressView;
 
     @Override
@@ -53,69 +57,50 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(onSaveInstanceState);
         setContentView(R.layout.layout);
 
-        cancel = findViewById(R.id.cancel);
-        select = findViewById(R.id.select);
-        save = findViewById(R.id.save);
-        mImageView = findViewById(R.id.clip_image);
-        mClipImageView = findViewById(R.id.result);
-        myProgressView = findViewById(R.id.my);
-        mImageView.post(new Runnable() {
-            @Override
-            public void run() {
-                mImageView.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ss0));
-            }
-        });
-        cancel.setOnClickListener(this);
-        select.setOnClickListener(this);
-        save.setOnClickListener(this);
-        select.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                Intent intent = new Intent(MainActivity.this, AIDLActivity.class);
-                startActivity(intent);
-                return true;
-            }
-        });
-        setupRecyclerView();
-//        test();
+//        cancel = $(R.id.cancel);
+//        select = $(R.id.select);
+//        save = $(R.id.save);
+//        mImageView = $(R.id.clip_image);
+//        mClipImageView = $(R.id.result);
+//        mImageView.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                mImageView.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ss0));
+//            }
+//        });
+//        cancel.setOnClickListener(this);
+//        select.setOnClickListener(this);
+//        save.setOnClickListener(this);
+//        select.setOnLongClickListener(new View.OnLongClickListener() {
+//            @Override
+//            public boolean onLongClick(View v) {
+//                Intent intent = new Intent(MainActivity.this, AIDLActivity.class);
+//                startActivity(intent);
+//                return true;
+//            }
+//        });
+//        setupRecyclerView();
+//        Choreographer.getInstance().postFrameCallback(this);
+//        select.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                frameNum = 0;
+//                select.postDelayed(this, 1000);
+//            }
+//        }, 1000);
     }
 
-    private void test() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.dialog);
-//        builder.setView(R.layout.img);
-
-        View view = LayoutInflater.from(this).inflate(R.layout.img, null);
-//        view.setLayoutParams(new WindowManager.LayoutParams(WindowManager.LayoutParams.MATCH_PARENT, 1000));
-
-//        builder.show();
-        AlertDialog dialog = builder.create();
-//        Dialog dialog = new Dialog(this, R.style.dialog);
-        dialog.setContentView(R.layout.img);
-        dialog.show();
-
-//        WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
-////        WindowManager.LayoutParams attrs = dialog.getWindow().getAttributes();
-////        params.flags |= WindowManager.LayoutParams.FLAG_FULLSCREEN;
-////        dialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-////        dialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-////        dialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-////        DisplayMetrics displayMetrics = new DisplayMetrics();
-////        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-//        params.x = -20;
-//        params.width = WindowManager.LayoutParams.MATCH_PARENT;
-//        params.height = WindowManager.LayoutParams.MATCH_PARENT;
-//        dialog.getWindow().setAttributes(params);
-//        dialog.setContentView(R.layout.img);
-
-
-    }
 
     private void setupRecyclerView() {
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        RecyclerView recyclerView = $(R.id.recycler_view);
         List<ItemAdapter.Item> list = new ArrayList<>();
         for (int i = 0; i < 20; ++i) {
             list.add(new ItemAdapter.Item(i));
         }
+        list.get(0).text = "photo";
+        list.get(1).text = "left delete";
+        list.get(2).text = "itemtouchhelper";
+        list.get(3).text = "nested move";
         ItemAdapter adapter = new ItemAdapter(this, list);
         LinearLayoutManager manager = new LinearLayoutManager(this);
         manager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -123,12 +108,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         recyclerView.setAdapter(adapter);
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.HORIZONTAL));
 
-        RecyclerView listView = findViewById(R.id.list_view);
+        RecyclerView listView = $(R.id.list_view);
         manager = new LinearLayoutManager(this);
         manager.setOrientation(LinearLayoutManager.VERTICAL);
         listView.setLayoutManager(manager);
         listView.setAdapter(adapter);
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+
+
     }
 
     @Override
@@ -165,6 +152,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public void doFrame(long frameTimeNanos) {
+//        ++frameNum;
+//        Choreographer.getInstance().postFrameCallback(this);
     }
 
 }

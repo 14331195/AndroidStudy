@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.example.administrator.androidstudy.views.NestedLinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.example.administrator.androidstudy.views.ColorTextView
+            android:layout_width="match_parent"
+            android:layout_height="1000dp"
+            android:text="sss"
+            android:gravity="center"
+            android:background="@color/color0"/>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </com.example.administrator.androidstudy.views.NestedLinearLayout>
+
+    <Button
+        android:id="@+id/close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_margin="10dp"
+        android:text="x"/>
+    <com.example.administrator.androidstudy.views.NestedFrameLayout
+        android:id="@+id/nested_fl"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:background="@color/colorPrimary"
+        android:layout_gravity="center">
+        <com.example.administrator.androidstudy.views.NestedChildView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:background="@color/colorAccent"
+            android:layout_gravity="center"/>
+    </com.example.administrator.androidstudy.views.NestedFrameLayout>
+
+
+    <com.example.administrator.androidstudy.views.NestedFrameLayout2
+        android:id="@+id/nested_fl_2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white">
+        <LinearLayout
+            android:id="@+id/ll_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <FrameLayout
+                android:id="@+id/fl_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/color0">
+                <View
+                    android:id="@+id/view"
+                    android:layout_width="130dp"
+                    android:layout_height="130dp"
+                    android:background="@color/colorAccent"
+                    android:layout_gravity="bottom|center"
+                    android:layout_marginTop="250dp"/>
+            </FrameLayout>
+            <android.support.design.widget.TabLayout
+                android:id="@+id/tab_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+            <android.support.v4.view.ViewPager
+                android:id="@+id/view_pager"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+        </LinearLayout>
+        <TextView
+            android:id="@+id/tv_top"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="top"
+            android:textAllCaps="false"
+            android:gravity="center"
+            android:layout_gravity="top"
+            android:background="@color/colorPrimary"/>
+    </com.example.administrator.androidstudy.views.NestedFrameLayout2>
+</FrameLayout>

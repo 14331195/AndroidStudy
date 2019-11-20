@@ -51,30 +51,6 @@
         android:src="@mipmap/ic_launcher"
         android:visibility="gone"/>
 
-    <com.example.administrator.androidstudy.views.ScrollableLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@color/colorPrimary">
-        <com.example.administrator.androidstudy.views.MyProgressView
-            android:id="@+id/my"
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:background="@drawable/bg_progress"
-            android:layout_margin="10dp"/>
-        <TextView
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="asdsadsadsjkhkjhkjhkkhjkhkjhadasdsad"
-            android:focusableInTouchMode="true"
-            android:focusable="true"
-            android:scrollHorizontally="true"
-            android:ellipsize="marquee"
-            android:singleLine="true"
-            android:textSize="22sp"
-            android:textColor="@color/black"
-            android:visibility="gone"/>
-    </com.example.administrator.androidstudy.views.ScrollableLayout>
 
     <com.example.administrator.androidstudy.views.ScrollLinearLayout
         android:layout_width="match_parent"
@@ -90,11 +66,17 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
         <!--<TextView-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="dsadsad"-->
-            <!--android:textColor="@color/black"-->
-            <!--android:layout_gravity="center"/>-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="dsadsad"-->
+        <!--android:textColor="@color/black"-->
+        <!--android:layout_gravity="center"/>-->
     </com.example.administrator.androidstudy.views.ScrollLinearLayout>
 
+
+    <com.example.administrator.androidstudy.views.MyProgressView
+        android:layout_width="150dp"
+        android:layout_height="30dp"
+        android:layout_gravity="center"
+        android:background="@color/color_tran"/>
 </FrameLayout>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center">
+
+    <LinearLayout
+        android:id="@+id/ll_recommend"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/tv_recommend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="推荐频道"
+            android:textColor="@color/black"
+            android:layout_margin="10dp"/>
+        <TextView
+            android:id="@+id/tv_underline1"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorAccent"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_local_news"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginLeft="50dp">
+        <TextView
+            android:id="@+id/tv_local_news"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="地方新闻"
+            android:textColor="@color/gray"
+            android:layout_margin="10dp"/>
+        <TextView
+            android:id="@+id/tv_underline2"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorAccent"
+            android:visibility="gone"/>
+    </LinearLayout>
+</LinearLayout>

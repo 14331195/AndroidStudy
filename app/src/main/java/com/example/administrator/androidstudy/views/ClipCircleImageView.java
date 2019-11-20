@@ -60,7 +60,8 @@ public class ClipCircleImageView extends ImageView {
     public void setImageBitmap(Bitmap bitmap) {
         mBitmap = bitmap;
         super.setImageBitmap(bitmap);
-        init();
+        this.post(()->{init();});
+//        init();
     }
 
     private void init() {
@@ -273,6 +274,7 @@ public class ClipCircleImageView extends ImageView {
             init();
         }
         try {
+//            canvas.translate(canvas.getWidth()/2, canvas.getHeight()/2);
             canvas.drawBitmap(mBitmap, mMatrix, null);
             int layerId = canvas.saveLayer(0, 0, canvas.getWidth(), canvas.getHeight(), null, Canvas.ALL_SAVE_FLAG);
             canvas.drawRect(mOutRect, mOutRectPaint);

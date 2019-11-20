@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp"
+    android:layout_marginRight="10dp"
+    android:gravity="center">
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="test"
+        android:layout_margin="7dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:gravity="center"
+        android:textColor="@color/black"
+        android:background="@color/color1"
+        android:layout_centerInParent="true"
+        android:clickable="true">
+    </TextView>
+    <TextView
+        android:id="@+id/tv_delete"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:background="@drawable/bg_channel_delete"
+        android:text="@string/str_delete"
+        android:textColor="@color/gray"
+        android:gravity="center"
+        android:textSize="10sp"
+        android:layout_toRightOf="@+id/tv_name"
+        android:layout_above="@+id/tv_name"
+        android:layout_marginBottom="-16dp"
+        android:layout_marginLeft="-15dp"/>
+</RelativeLayout>

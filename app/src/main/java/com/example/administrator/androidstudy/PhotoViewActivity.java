@@ -22,7 +22,7 @@ import java.io.InputStream;
  * Created by Administrator on 2018/1/10.
  */
 
-public class PhotoViewActivity extends AppCompatActivity implements View.OnClickListener{
+public class PhotoViewActivity extends BaseActivity implements View.OnClickListener{
     private PhotoWallView mPhotoWallView;
     private int mClickItem = -1;
 
@@ -30,17 +30,22 @@ public class PhotoViewActivity extends AppCompatActivity implements View.OnClick
     public void onCreate(@Nullable Bundle onSaveInstanceState) {
         super.onCreate(onSaveInstanceState);
         setContentView(R.layout.layout_photos_view);
-        mPhotoWallView = findViewById(R.id.photo_view);
+        mPhotoWallView = $(R.id.photo_view);
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ss);
         mPhotoWallView.setInitBitmap(bitmap);
 
         mPhotoWallView.setItemClickListener(new PhotoWallView.OnItemClickListener() {
             @Override
             public void onItemClick(int pos) {
-                mClickItem = pos;
-                Intent intent = new Intent(Intent.ACTION_PICK);
-                intent.setType("image/*");
-                startActivityForResult(intent, 0);
+                if (pos == 0) {
+                    Intent i = new Intent(PhotoViewActivity.this, CircleImageActivity.class);
+                    startActivity(i);
+                } else {
+                    mClickItem = pos;
+                    Intent intent = new Intent(Intent.ACTION_PICK);
+                    intent.setType("image/*");
+                    startActivityForResult(intent, 0);
+                }
             }
         });
     }

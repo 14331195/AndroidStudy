@@ -1,6 +1,17 @@
 package com.example.administrator.androidstudy.views;
 
+import android.animation.Animator;
+import android.animation.ValueAnimator;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -25,6 +36,8 @@ public class HeaderLayout extends FrameLayout {
     private int mPointHeightDip = 160;
     private int mPointHeight = mPointHeightDip; //Utils.dip2pix(mPointHeightDip);
     private int mHeaderHeight = 320;//Utils.dip2pix(320);
+    private int mCurrHeaderHeight = mHeaderHeight;
+    private boolean isShowing;      //头部布局是否已全部展示出来
 
     public HeaderLayout(Context context){
         this(context, null, 0);
@@ -40,10 +53,11 @@ public class HeaderLayout extends FrameLayout {
     }
 
     private void init(Context context) {
+        isShowing = false;
         View view = LayoutInflater.from(context).inflate(R.layout.layout_header, null);
         addView(view);
-        mRecyclerView = findViewById(R.id.recycler_view);
-        mHeaderPointView = findViewById(R.id.header_point);
+        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        mHeaderPointView = (HeaderPointView) findViewById(R.id.header_point);
 
         post(new Runnable() {
             @Override
@@ -59,10 +73,11 @@ public class HeaderLayout extends FrameLayout {
     }
 
     public boolean canScroll(int scrollY) {
-        return scrollY < mHeaderHeight;
+        return !isShowing && scrollY < mHeaderHeight;
     }
 
     public void onPullDown(int offset) {
+        if (mHeaderPointView.getVisibility() == GONE) return;
 //        offset = Utils.dip2pix(offset);
         float percentage = Math.abs(offset) / (float)mPointHeight;
 //        Log.v("AAAA:", "precentage:"+percentage + ",offset:"+offset);
@@ -108,10 +123,56 @@ public class HeaderLayout extends FrameLayout {
         return mHeaderHeight;
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event){
-        switch (event.getAction()) {
-            case
+    public boolean isShowing() {return isShowing;}
+
+    public void postScaleY(float scrollY){
+//        isShowing = true;
+        mCurrHeaderHeight += scrollY;
+        ViewGroup.LayoutParams params = getLayoutParams();
+        params.height = mCurrHeaderHeight;
+        setLayoutParams(params);
+        if (mCurrHeaderHeight > mHeaderHeight) {
+            isShowing = true;
+        } else {
+            isShowing = false;
         }
     }
+
+    public void onCancel() {
+        if (mCurrHeaderHeight <= mHeaderHeight) return;
+        ValueAnimator animator = ValueAnimator.ofInt(mCurrHeaderHeight, mHeaderHeight);
+        animator.addUpdateListener((animation) -> {
+            int height = (Integer) animation.getAnimatedValue();
+            ViewGroup.LayoutParams params = getLayoutParams();
+            params.height = height;
+            setLayoutParams(params);
+        });
+        animator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+            }
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mCurrHeaderHeight = mHeaderHeight;
+                isShowing = false;
+            }
+            @Override
+            public void onAnimationCancel(Animator animation) {
+            }
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+        animator.setDuration(300);
+        animator.start();
+    }
+
+
+//    @Override
+//    public boolean onTouchEvent(MotionEvent event){
+//        switch (event.getAction()) {
+////            case
+//        }
+//    }
 }
